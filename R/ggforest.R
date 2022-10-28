@@ -52,7 +52,14 @@ ggforest <- function(model, data = NULL,
 #    gsub(rownames(anova(model))[-1], pattern = "`", replacement = ""))]
 
   # use broom to get some required statistics
+  exclude.rows = which(is.infinite(summary(model)$conf.int), arr.ind = TRUE)
+  
+  warnings(paste("Rows", paste0(rownames(exclude.rows), collapse = ", "), 
+                 "are excluded because of Infinite conf.int values.\n", collapse = " "))
   coef <- as.data.frame(tidy(model, conf.int = TRUE))
+  
+  coef = coef[setdiff(1:nrow(coef), exclude.rows[, 1]), ] 
+  # coef <- as.data.frame(tidy(model, conf.int = TRUE))
   gmodel <- glance(model)
 
   # extract statistics for every variable
